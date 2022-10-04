@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; media-src 'self' blob: ;">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simple Transcoder</title>
+    <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="./mdl/material.min.css">
+    <script src="./mdl/material.min.js"></script>
+    <link rel="stylesheet" href="./mdl/materialIcons.css">
+  </head>
+  <body>
+    <div id="dragAndDropOverlay">
+      Drop items
+    </div>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <main class="mdl-layout__content">
+        <div class="page-content mdl-grid">
+          <div class="mdl-cell mdl-cell--2-col mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-col-main">
+            File Info
+          </div>
+          <div class="mdl-cell mdl-cell--10-col mdl-col-main">
+            <div class="mdl-grid">
+              <div class="mdl-col-vid mdl-cell mdl-cell--12-col">
+                <div class="videodiv">
+                  <video id="mainPlayer" controls controlslist="nodownload"></video>
+                </div>
+              </div>
+              <div class="mdl-cell mdl-cell--12-col">
+                Video settings
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>       
+    <script src="./renderer.js"></script>
+  </body>
+</html>
+
