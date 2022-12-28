@@ -4,7 +4,10 @@
   "description": "Simple video trimming and transcoding application to turn a video into a specific size",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "debug": "electron .",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "repository": {
     "type": "git",
@@ -13,6 +16,15 @@
   "author": "Torca",
   "license": "ISC",
   "dependencies": {
-    "electron": "^21.0.1"
+    "electron-squirrel-startup": "^1.0.0",
+    "video.js": "^7.20.3"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-rpm": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
+    "electron": "^21.3.3"
   }
 }

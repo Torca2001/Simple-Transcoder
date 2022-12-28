@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; media-src 'self' blob: ;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self';img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; media-src 'self' blob: ;">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Simple Transcoder</title>
     <link rel="stylesheet" href="./index.css">
@@ -13,29 +13,83 @@
   </head>
   <body>
     <div id="dragAndDropOverlay">
-      Drop items
+      Drop files<br>to edit
     </div>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
       <main class="mdl-layout__content">
         <div class="page-content mdl-grid">
-          <div class="mdl-cell mdl-cell--2-col mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-col-main">
+          <div class="mdl-cell mdl-cell--2-col-desktop mdl-cell--12-col mdl-cell-20h mdl-cell-bg">
             File Info
+            <p id="fileInfo"></p>
           </div>
-          <div class="mdl-cell mdl-cell--10-col mdl-col-main">
-            <div class="mdl-grid">
-              <div class="mdl-col-vid mdl-cell mdl-cell--12-col">
-                <div class="videodiv">
-                  <video id="mainPlayer" controls controlslist="nodownload"></video>
+          <div class ="mdl-cell margin-0 mdl-cell--12-col mdl-cell-80h width-100">
+            <div class="mdl-grid secondary-mdl-grid">
+              <div class="mdl-cell mdl-cell--10-col mdl-cell-bg video-mdl-cell">
+                <div class="mdl-grid">
+                  <div class="mdl-col-vid mdl-cell mdl-cell--12-col">
+                    <div class="videodiv">
+                      <video id="mainPlayer" class="video-js" controls controlslist="nodownload"></video>
+                    </div>
+                  </div>
+                  <div class="mdl-cell mdl-cell--12-col mdl-cell-bg">
+                    <!--
+                      Settings below the video frame
+                    -->
+                    <div class="mdl-textfield mdl-js-textfield time-fields">
+                      <input class="mdl-textfield__input" type="text" pattern="^\s*(?:[0-9]*(\.[0-9]+)?|\d{1,2}(?::\d{1,2})?(?::\d{1,2}(?:\.[0-9]+)?))\s*$" id="startTime">
+                      <label class="mdl-textfield__label" for="startTime">Start trim</label>
+                      <span class="mdl-textfield__error">Not valid time format!</span>
+                      <div class="input-set-current-div">T</div>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield time-fields">
+                      <input class="mdl-textfield__input" type="text" pattern="^\s*(?:[0-9]*(\.[0-9]+)?|\d{1,2}(?::\d{1,2})?(?::\d{1,2}(?:\.[0-9]+)?))\s*$" id="endTime">
+                      <label class="mdl-textfield__label" for="endTime">End trim</label>
+                      <span class="mdl-textfield__error">Not valid time format!</span>
+                      <div class="input-set-current-div">T</div>
+                    </div>
+                    <div class="encode-button-div">
+                      <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="MergeAudio-Check" id="MergeAudio-Label">
+                        <input type="checkbox" id="MergeAudio-Check" class="mdl-checkbox__input" checked>
+                        <span class="mdl-checkbox__label">Merge Audio</span>
+                      </label>
+                      <input type="file" id="videoFilePicker" accept="video/*">
+                      <label for="videoFilePicker" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+                        Browse
+                      </label>
+                      <button class="mdl-button mdl-js-button mdl-button--raised encode-button-div mdl-button--colored" id="encodeButton">
+                        Encode
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="mdl-cell mdl-cell--12-col">
-                Video settings
+              <div class="mdl-cell mdl-cell--2-col mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-cell-100h mdl-cell-bg">
+                <h3>
+                  Settings
+                </h3>
+                <div class="mdl-textfield mdl-js-textfield">
+                  <input class="mdl-textfield__input" type="text" pattern="^[1-9]\d*[kmgKMG]?[bB]?$" id="fileSizeField" value="8M">
+                  <label class="mdl-textfield__label" for="fileSizeField">Target Size</label>
+                  <span class="mdl-textfield__error">Not valid time format!</span>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield">
+                  <input class="mdl-textfield__input" type="text" pattern="^\s*(?:[0-9]*(\.[0-9]+)?|\d{1,2}(?::\d{1,2})?(?::\d{1,2}(?:\.[0-9]+)?))\s*$" id="MaxBitField">
+                  <label class="mdl-textfield__label" for="MaxBitField">Max Bitrate/label>
+                  <span class="mdl-textfield__error">Not valid time format!</span>
+                </div>
+                <div>
+                  <span id="ffmpegPathLabel">FFmpeg</span>
+                  <button class="mdl-button mdl-js-button mdl-button--raised encode-button-div mdl-button--colored" id="ffmpegPathButton">
+                    Browse
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </main>
-    </div>       
+    </div> 
+    <script src="./utility.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>

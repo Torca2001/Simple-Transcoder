@@ -1,43 +1,135 @@
-.mdl-col-main {
-    height: 1calc(100% - 16px);
-}
+#videoFilePicker { display: none }
 
-
-.page-content {
-    padding: 0;
+.page-content.mdl-grid {
+    flex-direction: column;
     height: calc(100% - 16px);
+    flex-wrap: nowrap;
 }
 
-.mdl-col-main {
-    width: 100%;
+.mdl-textfield {
+    padding: 0 !important;
+}
+
+.mdl-textfield__label {
+    top: 4px !important;
+}
+
+.mdl-textfield__label:after {
+    bottom: 0 !important;
+}
+
+.encode-button-div {
+    float: right;
+    margin-right: 10px !important;
+    margin-left: 10px !important;
+}
+
+#MergeAudio-Label {
+    margin-right: 10px;
+    width: auto;
+}
+
+.input-set-current-div {
+    background-color: grey;
+    color:white;
+    position: absolute;
+    top: 0;
+    right: -5px;
+    border-radius: 0 5px 5px 0;
+    height: 27px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-set-current-div:hover {
+    background-color: rgb(93, 136, 255);
+    cursor: pointer;
+}
+
+.mdl-textfield.time-fields {
+    margin-right: 10px;
+    width: 150px;
+    margin-bottom: 8px;
+}
+
+.is-invalid .input-set-current-div {
+    background-color: #d50000;
 }
 
 .videodiv {
     width: 100%;
+    min-height: 10vh;
     aspect-ratio: 16 / 9;
 }
 
 #mainPlayer {
     width: 100%;
+    height: 100%;
 }
 
-.mdl-cell {
-    background-color: #f8f8f8;
+.mdl-cell-bg {
+    background-color: #a8a8a8;
     border-radius: 5px;
+}
+
+.secondary-mdl-grid {
+    flex-direction: row-reverse !important;
+    padding: 0 !important;
+    height: 100%;
+}
+
+.video-mdl-cell.mdl-cell {
+    margin-top: 0;
+}
+
+.width-100.mdl-cell {
+    width: 100%;
+}
+
+
+@media (min-width: 840px) {
+    .video-mdl-cell.mdl-cell {
+        margin-top: calc(-20vh + 12px);
+    }
+
+    .mdl-cell-100h {
+        height: calc(100% - 16px);
+    }
+    
+    .mdl-cell-20h {
+        height: calc(20% - 16px);
+    }
+    
+    .mdl-cell-80h {
+        height: calc(80% - 16px);
+    }
+
+    .page-content.mdl-grid {
+        height: calc(100% - 16px);
+    }
+}
+
+.margin-0 {
+    margin: 0 !important;
 }
 
 #dragAndDropOverlay {
     position: absolute;
     left: 0;
     top: 0;
-    height: 100vh;
+    height: 100%;
     width: 100vw;
     z-index: 100;
     font-size: 30px;
+    line-height: 30px;
     text-align: center;
     margin: auto;
-    background-color: #f8f8f8b7;
+    background-color: #575757b7;
     opacity: 1;
     display: none;
+    justify-content: center;
+    align-items: center;
 }
 
