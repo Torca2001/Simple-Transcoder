@@ -16,8 +16,7 @@
   "author": "Torca",
   "license": "ISC",
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0",
-    "video.js": "^7.20.3"
+    "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.4",
