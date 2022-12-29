@@ -33,6 +33,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
+- [Support](#support)
 - [Contributing](#contributing)
 - [Authors & contributors](#authors--contributors)
 - [Security](#security)
@@ -128,7 +129,7 @@ First off, thanks for taking the time to contribute! Contributions are what make
 
 ## Authors & contributors
 
-The original setup of this repository is by [FULL_NAME](https://github.com/Torca2001).
+The original setup of this repository is by [Torca](https://github.com/Torca2001).
 
 For a full list of all authors and contributors, see [the contributors page](https://github.com/Torca2001/Simple-Transcoder/contributors).
 
