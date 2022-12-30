@@ -5,6 +5,11 @@ setupFileDrag();
 setupControls();
 
 function setCurrentFile(newFile) {
+    if (newFile != undefined && newFile.type.indexOf("video/") != 0) {
+        alert("Only Video files are supported.");
+        return;
+    }
+
     currentFile = newFile;
     currentMetaData = undefined;
 
