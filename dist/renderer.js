@@ -28,8 +28,11 @@ function setCurrentFile(newFile) {
             try {
                 currentMetaData = JSON.parse(data);
                 currentMetaData.format.duration = Number(currentMetaData.format.duration);
+                updateFileInfo(currentFile);
+                console.log(currentMetaData)
             }
             catch (e) {
+                console.info("Error parsing file metadata");
                 console.error(e);
             }
         });
@@ -130,13 +133,21 @@ function setupControls() {
 }
 
 function updateFileInfo(file) {
-    let fileInfo = document.getElementById('fileInfo');
-    if (fileInfo) {
+    let fileTitleLabel = document.getElementById('fileTitleLabel');
+    if (fileTitleLabel) {
         let fileInfoText = "";
         if (file) {
             fileInfoText = file.name + " (" + formatBytes(file.size) + ")";
         }
-        fileInfo.innerText = fileInfoText;
+        fileTitleLabel.innerText = fileInfoText;
+        let fileAudioTracksLabel = document.getElementById('fileAudioTracks');
+        if (fileAudioTracksLabel) {
+            let count = 0
+            if (currentMetaData && currentMetaData.streams) {
+                count = currentMetaData.streams.filter((e) => e.codec_type == "audio").length;
+            }
+            fileAudioTracksLabel.innerText = count;
+        }
     }
 }
 
@@ -146,7 +157,6 @@ function encodeVideo() {
         let endTime = timeFormatToNumber(document.getElementById('endTime').value);
         let fileTargetSize = byteFormatToNumber(document.getElementById('fileSizeField').value);
         let isAudioMerged = document.getElementById("MergeAudio-Check").checked;
-        console.log(fileTargetSize);
         let duration = currentMetaData.format.duration;
 
         if (startTime < 0 || startTime > currentMetaData.format.duration) {

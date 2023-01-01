@@ -6,6 +6,14 @@
     flex-wrap: nowrap;
 }
 
+.no-margin {
+    margin: 0;
+}
+
+div.file-info-spacing {
+    padding: 4px 8px;
+}
+
 .mdl-textfield {
     padding: 0 !important;
 }
@@ -70,7 +78,7 @@
 }
 
 .mdl-cell-bg {
-    background-color: #a8a8a8;
+    background-color: #fff;
     border-radius: 5px;
 }
 
