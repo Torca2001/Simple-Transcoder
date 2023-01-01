@@ -148,11 +148,10 @@ async function getvideoFileMeta(filePath) {
 
         let ffmpegPath = ffmpegLoc;
         if (ffmpegLoc == "ffmpeg") {
-            ffmpegPath == "ffprobe";
+            ffmpegPath = "ffprobe";
         } else {
             ffmpegPath = path.join(ffmpegPath, "ffprobe.exe");
         }
-
         let ffprobe = spawn(ffmpegPath, ['-print_format', 'json', '-loglevel', '0', '-show_format', '-show_streams', input], )
         ffprobe.stdout.on('data', function (data) {
             str += data;
