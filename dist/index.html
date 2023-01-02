@@ -42,13 +42,13 @@
                     <!--
                       Settings below the video frame
                     -->
-                    <div class="mdl-textfield mdl-js-textfield time-fields">
+                    <div class="trimfield mdl-textfield mdl-js-textfield time-fields">
                       <input class="mdl-textfield__input" type="text" pattern="^\s*(?:[0-9]*(\.[0-9]+)?|\d{1,2}(?::\d{1,2})?(?::\d{1,2}(?:\.[0-9]+)?))\s*$" id="startTime">
                       <label class="mdl-textfield__label" for="startTime">Start trim</label>
                       <span class="mdl-textfield__error">Not valid time format!</span>
                       <div class="input-set-current-div">T</div>
                     </div>
-                    <div class="mdl-textfield mdl-js-textfield time-fields">
+                    <div class="trimfield mdl-textfield mdl-js-textfield time-fields">
                       <input class="mdl-textfield__input" type="text" pattern="^\s*(?:[0-9]*(\.[0-9]+)?|\d{1,2}(?::\d{1,2})?(?::\d{1,2}(?:\.[0-9]+)?))\s*$" id="endTime">
                       <label class="mdl-textfield__label" for="endTime">End trim</label>
                       <span class="mdl-textfield__error">Not valid time format!</span>
@@ -80,12 +80,20 @@
                   <div class="mdl-textfield mdl-js-textfield">
                     <input class="mdl-textfield__input" type="text" pattern="^[1-9]\d*[kmgKMG]?[bB]?$" id="fileSizeField" value="8M">
                     <label class="mdl-textfield__label" for="fileSizeField">Target Size</label>
-                    <span class="mdl-textfield__error">Not valid time format!</span>
+                    <span class="mdl-textfield__error">Not valid file size!</span>
                   </div>
                   <div class="mdl-textfield mdl-js-textfield">
                     <input class="mdl-textfield__input" type="text" pattern="^[1-9]\d*[kmgKMG]?[bB]?$" id="MaxBitField" value="1600k">
                     <label class="mdl-textfield__label" for="MaxBitField">Max Bitrate</label>
-                    <span class="mdl-textfield__error">Not valid time format!</span>
+                    <span class="mdl-textfield__error">Not valid bit size!</span>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <select class="mdl-textfield__input" id="codecSelect" name="codecSelect">
+                      <option value="h264">H264</option>
+                      <option value="h264_nvenc">H264 Nvenc</option>
+                      <option value="libvpx-vp9">Vp9</option>
+                    </select>
+                    <label class="mdl-textfield__label" for="codecSelect">Codec</label>
                   </div>
                 </div>
                 <div class="file-info-spacing">
@@ -96,6 +104,26 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="progressDiv transcoder-collapsible mdl-shadow--2dp hidden">
+          <div class="transcoderHeaderProgress">
+            <div>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="transcoderProgressBar">
+              <div class="transcoderProgressValue" style="width: 0%">
+    
+              </div>
+            </div>
+          </div>
+          <div class="transcoderBodyProgress">
+            Encode info
+          </div>
+          <div class="transcoderActionsProgress">
+            <button class="mdl-button mdl-js-button mdl-button--raised encode-button-div mdl-button--accent" id="cancelEncode">
+              Cancel
+            </button>
           </div>
         </div>
       </main>

@@ -83,7 +83,7 @@ const createWindow = () => {
             nodeIntegration: false,
             preload: path.join(__dirname, 'preload.js')
         }
-    })
+    });
 
     //win.maximize();
     //win.removeMenu();
@@ -111,6 +111,7 @@ app.whenReady().then(() => {
     ipcMain.handle('videoMetaData', (_, file, callback) => getvideoFileMeta(file, callback));
     ipcMain.handle('setFFmpegPath', setFFmpegPath)
     ipcMain.handle('getFFmpegPath', () => ffmpegLoc);
+    ipcMain.handle('cancelEncode', cancelEncode);
 })
 
 app.on('window-all-closed', () => {
@@ -180,7 +181,8 @@ function encodeVideo(_, options) {
             out_time: "00:00",
             frame: 0,
             speed: 0,
-            progress: 'start'
+            progress: 'start',
+            percentage: 0,
         };
 
         let frameRate = 60;
@@ -194,6 +196,8 @@ function encodeVideo(_, options) {
             funcArgs.push('3');
         }
 
+        let duration = options.metaData.format.duration;
+
         if (!isNaN(options.startTime) && options.startTime > 0) {
             funcArgs.unshift(options.startTime);
             funcArgs.unshift('-ss');
@@ -201,11 +205,17 @@ function encodeVideo(_, options) {
             if (!isNaN(options.endTime) && options.endTime > options.startTime && options.metaData.format.duration >= options.endTime) {
                 funcArgs.push('-t');
                 funcArgs.push(options.endTime - options.startTime);
+                duration = options.endTime - options.startTime;
+            } else {
+                duration = duration - options.startTime;
             }
         } else if (!isNaN(options.endTime) && options.endTime > 0 && options.metaData.format.duration >= options.endTime) {
             funcArgs.push('-t');
             funcArgs.push(options.endTime);
+            duration = options.endTime;
         }
+
+        progress.duration = duration;
 
         /*
         if (!isNaN(encodeItem.width) && Number(encodeItem.width) > 0 && Number(encodeItem.width) < encodeItem.metadata.video_width) {
@@ -252,6 +262,12 @@ function encodeVideo(_, options) {
                     progress[key[0]] = key[1];
                 }
             }
+
+            if (progress.out_time_ms) {
+                progress.out_time_ms = Number(progress.out_time_ms);
+                progress.percentage = progress.out_time_ms / (duration * 10000);
+            }
+
             mainWindow.webContents.send('encode-progress-update', progress);
             //informEncode(progress);
         });
@@ -276,10 +292,11 @@ function encodeVideo(_, options) {
 
         ffmpeg.stderr.on("data", data => {
             //encodeItem.log += data.toString();
-            console.log(`stderr: ${data}`);
+            //console.log(`stderr: ${data}`);
         });
 
         ffmpeg.stdout.on('end', function () {
+            mainWindow.webContents.send('encode-complete', progress);
             console.log("ffmpeg complete");
         });
     }

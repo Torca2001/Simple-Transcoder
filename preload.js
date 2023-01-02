@@ -16,8 +16,9 @@ contextBridge.exposeInMainWorld('SimpleTranscoder', {
         return ipcRenderer.invoke('getUserFilePath', options);
     },
     encodeVideo(options) {
-        if (typeof options === "object") {
-            options.ffmpegPath = "ffmpeg";
+        let encodeButton = document.getElementById("encodeButton");
+        if (encodeButton) {
+            encodeButton.disabled = true;
         }
         
         return ipcRenderer.invoke('encodeVideo', options);
@@ -30,11 +31,103 @@ contextBridge.exposeInMainWorld('SimpleTranscoder', {
     },
     getFFmpegPath() {
         return ipcRenderer.invoke('getFFmpegPath');
+    },
+    cancelEncode() {
+        return ipcRenderer.invoke('cancelEncode');
     }
 });
 
+function updateProgressBar(progress) {
+    if (!progress) {
+        return;
+    }
+
+    let progPerc = progress.percentage 
+    let progressPercRnd = Math.round(progress.percentage);
+
+    if (Math.abs(progress.out_time_ms/1000000 - progress.duration) < 0.1) {
+        progPerc = 100;
+    }
+
+    let progressBar = document.getElementsByClassName("transcoderProgressBar");
+    if (progressBar.length > 0) {
+        progressBar[0].setAttribute("value", progressPercRnd);
+        progressBar[0].classList.toggle("error", false);
+    }
+
+    let progressValue = document.getElementsByClassName("transcoderProgressValue");
+    if (progressValue.length > 0) {
+        progressValue[0].style.width = progPerc + "%";
+    }
+
+    let progressPercent = document.getElementById("progressPercent");
+    if (progressPercent) {
+        progressPercent.innerText = progressPercRnd + "%";
+    }
+
+    let progressBody = document.getElementsByClassName("transcoderBodyProgress");
+    if (progressBody.length > 0) {
+        progressBody[0].innerText = `Bitrate: ${progress.bitrate}, Speed: ${progress.speed}, Time: ${progress.out_time}, Fps: ${progress.fps}, Size: ${formatBytes(progress.total_size)}, Frames: ${progress.frame}`
+    }
+}
+
 ipcRenderer.on('encode-progress-update', function (evt, message) {
-    console.log(message);
+    //console.log(message);
+    let progressDiv = document.getElementsByClassName("progressDiv");
+    if (progressDiv.length > 0) {
+        progressDiv[0].classList.toggle("hidden", false);
+    }
+
+    if (hideProgressTimeout) {
+        clearTimeout(hideProgressTimeout);
+        hideProgressTimeout = undefined;
+    }
+
+    updateProgressBar(message);
 });
 
+let hideProgressTimeout = undefined;
+
+ipcRenderer.on('encode-complete', function (evt, message) {
+    let encodeButton = document.getElementById("encodeButton");
+    if (encodeButton) {
+        encodeButton.disabled = false;
+    }
+
+    updateProgressBar(message);
+
+    let progressBar = document.getElementsByClassName("transcoderProgressBar");
+    if (progressBar.length > 0) {
+        progressBar[0].classList.toggle("error", Math.abs(message.out_time_ms/1000000 - message.duration) > 0.1);
+    }
+
+    if (hideProgressTimeout) {
+        clearTimeout(hideProgressTimeout);
+        hideProgressTimeout = undefined;
+    }
+
+    hideProgressTimeout = setTimeout(() => {
+        let progressDiv = document.getElementsByClassName("progressDiv");
+        if (progressDiv.length > 0) {
+            progressDiv[0].classList.toggle("hidden", true);
+        }
+
+        hideProgressTimeout = undefined;
+    }, 5000);
+});
+
+function formatBytes(bytes, decimals = 2) {
+    if (isNaN(bytes)) {
+        return 'N/A';
+    }
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
 

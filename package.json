@@ -1,6 +1,6 @@
 {
   "name": "simple-transcoder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple video trimming and transcoding application to turn a video into a specific size",
   "main": "main.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "url": "https://github.com/Torca2001/Simple-Transcoder"
   },
   "author": "Torca",
-  "license": "ISC",
+  "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0"
   },

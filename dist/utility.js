@@ -103,5 +103,3 @@ function formatBytes(bytes, decimals = 2) {
 }
 
 
-
-

@@ -29,7 +29,6 @@ function setCurrentFile(newFile) {
                 currentMetaData = JSON.parse(data);
                 currentMetaData.format.duration = Number(currentMetaData.format.duration);
                 updateFileInfo(currentFile);
-                console.log(currentMetaData)
             }
             catch (e) {
                 console.info("Error parsing file metadata");
@@ -121,6 +120,29 @@ function setupControls() {
         });
     }
 
+    let cancelButton = document.getElementById('cancelEncode');
+    if (cancelButton) {
+        cancelButton.addEventListener('click', () => {
+            console.log("Cancelled Encode");
+            SimpleTranscoder.cancelEncode();
+        });
+    }
+
+    let transcoderHeaderProgress = document.getElementsByClassName('transcoderHeaderProgress');
+    if (transcoderHeaderProgress.length > 0) {
+        transcoderHeaderProgress[0].addEventListener('click', (e) => {
+            let current = e.target;
+            while (current != undefined) {
+                if (current.classList.contains('transcoder-collapsible')) {
+                    current.classList.toggle('expanded');
+                    break;
+                }
+                current = current.parentNode;
+
+            }
+        });
+    }
+
 
     let fileBrowser = document.getElementById('videoFilePicker');
     if (fileBrowser) {
@@ -187,6 +209,13 @@ function encodeVideo() {
             outputName = currentFile.name;
         }
 
+        let codecSelect = document.getElementById("codecSelect");
+        let codec = "h264";
+
+        if (codecSelect) {
+            codec = codecSelect.value;
+        }
+
         let outputDir = currentFile.path.substring(0, currentFile.path.lastIndexOf('\\'));
         let outputFilePath = outputDir + '\\' + outputName;
 
@@ -197,7 +226,7 @@ function encodeVideo() {
             bitrate: calculateBitRate(duration, fileTargetSize),
             mergeAudio: isAudioMerged,
             metaData: currentMetaData,
-            codec: 'h264_nvenc',
+            'codec': codec,
             outputFilePath: outputFilePath
         };
 

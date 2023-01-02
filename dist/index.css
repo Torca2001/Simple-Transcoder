@@ -14,16 +14,32 @@ div.file-info-spacing {
     padding: 4px 8px;
 }
 
-.mdl-textfield {
+.trimfield.mdl-textfield {
     padding: 0 !important;
 }
 
-.mdl-textfield__label {
+.trimfield>.mdl-textfield__label {
     top: 4px !important;
 }
 
-.mdl-textfield__label:after {
+.trimfield>.mdl-textfield__label:after {
     bottom: 0 !important;
+}
+
+#encodeProgressBar {
+    width: 100%;
+}
+
+.progressDiv {
+    width: calc( 100% - 32px );
+    position: fixed;
+    bottom: 0;
+    margin: 0 16px;
+    background-color: #fff;
+    z-index: 100;
+    border-radius: 5px 5px 0 0;
+    justify-content: center;
+    align-items: center;
 }
 
 .encode-button-div {
@@ -141,3 +157,111 @@ div.file-info-spacing {
     align-items: center;
 }
 
+.transcoderProgressBar {
+    height: 8px;
+    background: grey;
+    border-radius: 5px;
+    margin: 0 5px;
+    width: calc(98% - 50px);
+}
+
+.transcoderProgressBar[value]>.transcoderProgressValue {
+    width: 0;
+    animation: none;
+}
+
+.transcoderProgressBar[value="100"]>.transcoderProgressValue {
+    background-color: #66dc5e;
+}
+
+.transcoderProgressBar.error>.transcoderProgressValue  {
+    background-color: #ee3939;
+}
+
+.transcoderProgressBar>.transcoderProgressValue {
+    width: 10%;
+    height: 100%;
+    margin-left: 0;
+    background-color: #5164f9;
+    border-radius: 5px;
+    animation: 
+        slideLoop
+        5s
+        linear
+        0s
+        alternate
+        infinite
+        none
+        running;
+}
+
+@keyframes slideLoop {
+    0% {
+        margin-left: 0;
+    }
+    100% {
+        margin-left: 90%;
+    }
+}
+
+.transcoderHeaderProgress>:first-child{
+    min-width: 35px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 4px;
+}
+.transcoder-collapsible {
+    transition: max-height .3s ease;
+    height: fit-content;
+    overflow: hidden;
+    max-height: 24px;
+}
+.transcoder-collapsible.expanded{
+    transition: max-height .3s ease;
+    max-height: 120px;
+}
+.transcoder-collapsible.hidden{
+    display: none;
+}
+.transcoder-collapsible>div:first-child::after {
+    content: "";
+    -webkit-mask: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FscXVlXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSItOTUwIDUzMiAxOCAxOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAtOTUwIDUzMiAxOCAxODsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6bm9uZTt9DQoJLnN0MXtmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRoOjEuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9DQo8L3N0eWxlPg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTS05MzIsNTMydjE4aC0xOHYtMThILTkzMnoiLz4NCjxwb2x5bGluZSBjbGFzcz0ic3QxIiBwb2ludHM9Ii05MzYuNiw1MzguOCAtOTQxLDU0My4yIC05NDUuNCw1MzguOCAiLz4NCjwvc3ZnPg0K)center/contain no-repeat;
+    mask: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOS4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FscXVlXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSItOTUwIDUzMiAxOCAxOCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAtOTUwIDUzMiAxOCAxODsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc3Qwe2ZpbGw6bm9uZTt9DQoJLnN0MXtmaWxsOm5vbmU7c3Ryb2tlOiNGRkZGRkY7c3Ryb2tlLXdpZHRoOjEuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9DQo8L3N0eWxlPg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTS05MzIsNTMydjE4aC0xOHYtMThILTkzMnoiLz4NCjxwb2x5bGluZSBjbGFzcz0ic3QxIiBwb2ludHM9Ii05MzYuNiw1MzguOCAtOTQxLDU0My4yIC05NDUuNCw1MzguOCAiLz4NCjwvc3ZnPg0K)center/contain no-repeat;
+    background: rgb(129, 129, 129);
+    height: 20px;
+    width: 20px;
+    right: 4px;
+    position: relative;
+    display: inline-block;
+    vertical-align: bottom;
+    transition: transform .3s ease;
+    transform: rotate(90deg);
+    order: 3;
+}
+.transcoder-collapsible.expanded>div:first-child::after {
+    transition: transform .3s ease;
+    transform: rotate(0);
+}
+.transcoderHeaderProgress {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0 4px;
+    padding: 4px 0;
+    cursor: pointer;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
+}
+.transcoderBodyProgress {
+    width: 100%;
+    display: inline-grid;
+    grid-template-columns: 2fr 1fr 1fr 2fr 1fr 1fr
+}
+.transcoderActionsProgress {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
+}
