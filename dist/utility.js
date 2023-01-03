@@ -1,7 +1,6 @@
 let defaultFileSize = 8 * 1024 * 1024;
-let maxBitRate = 16000 * 1024 * 1024;
 
-function toTimeFormat(totalTime) {
+export function toTimeFormat(totalTime) {
     if (!totalTime || totalTime < 0) {
         return "00:00";
     }
@@ -31,7 +30,7 @@ function toTimeFormat(totalTime) {
     return output;
 }
 
-function byteFormatToNumber(input, defaultSize = 'm') {
+export function byteFormatToNumber(input, defaultSize = 'm') {
     let types = ['b', 'k', 'm', 'g', 't', 'p', 'e', 'z'];
 
     if (!input || input.trim() == "") {
@@ -61,7 +60,7 @@ function byteFormatToNumber(input, defaultSize = 'm') {
     }
 }
 
-function timeFormatToNumber(input) {
+export function timeFormatToNumber(input) {
     if (!input || input.trim() == "") {
         return NaN;
     }
@@ -75,19 +74,19 @@ function timeFormatToNumber(input) {
     return total;
 }
 
-function calculateBitRate(totalTime, targetSize = defaultFileSize, overheadFactor = 0.96) {
+export function calculateBitRate(totalTime, targetSize = defaultFileSize, maxBitRate = 1600) {
     //return (8 * 8192) / (1.048576 * totalTime) - 64;
     let scaler = 1000 * 8 / 1024 / 1024;
     return Math.min(Math.floor((targetSize * scaler - 1) * 0.99 / totalTime - 64), maxBitRate);
 }
 
-function calculateMaxtime(targetSize = defaultFileSize, overheadFactor = 0.96) {
+export function calculateMaxtime(targetSize = defaultFileSize, overheadFactor = 0.96) {
 
     let bitRateMin = 100;
     return Math.floor(targetSize * overheadFactor / (bitRateMin + 64) / 128);
 }
 
-function formatBytes(bytes, decimals = 2) {
+export function formatBytes(bytes, decimals = 2) {
     if (isNaN(bytes)) {
         return 'N/A';
     }
@@ -102,4 +101,13 @@ function formatBytes(bytes, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-
+if (typeof module !== 'undefined') {
+    module.exports = {
+        toTimeFormat,
+        byteFormatToNumber,
+        timeFormatToNumber,
+        calculateBitRate,
+        calculateMaxtime,
+        formatBytes,
+    };
+}

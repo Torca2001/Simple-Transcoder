@@ -1,5 +1,8 @@
+import * as utility from './utility.js';
+
 let currentFile = undefined;
 let currentMetaData = undefined;
+let currentSettings = undefined;
 
 setupFileDrag();
 setupControls();
@@ -72,7 +75,7 @@ function setupControls() {
         startTimeField.parentElement.getElementsByClassName('input-set-current-div')[0].addEventListener('click', (ev) => {
             let mainPlayer = document.getElementById('mainPlayer');
             let currentTime = mainPlayer.currentTime;
-            startTimeField.value = toTimeFormat(currentTime);
+            startTimeField.value = utility.toTimeFormat(currentTime);
             startTimeField.parentElement.classList.toggle("is-dirty", true);
         });
     }
@@ -82,7 +85,7 @@ function setupControls() {
         endTimeField.parentElement.getElementsByClassName('input-set-current-div')[0].addEventListener('click', (ev) => {
             let mainPlayer = document.getElementById('mainPlayer');
             let currentTime = mainPlayer.currentTime;
-            endTimeField.value = toTimeFormat(currentTime);
+            endTimeField.value = utility.toTimeFormat(currentTime);
             endTimeField.parentElement.classList.toggle("is-dirty", true);
         });
     }
@@ -110,10 +113,11 @@ function setupControls() {
                 ]
             }).then((data) => {
                 if (!data.cancelled && data.filePaths.length > 0) {
-                    console.log(data.filePaths[0]);
                     SimpleTranscoder.setFFmpegPath(data.filePaths[0])
                     SimpleTranscoder.getFFmpegPath().then((data) => {
                         ffmpegLabel.innerText = data;
+                        currentSettings.ffmpegPath = data
+                        SimpleTranscoder.saveSettings(currentSettings);
                     });
                 }
             });
@@ -159,7 +163,7 @@ function updateFileInfo(file) {
     if (fileTitleLabel) {
         let fileInfoText = "";
         if (file) {
-            fileInfoText = file.name + " (" + formatBytes(file.size) + ")";
+            fileInfoText = file.name + " (" + utility.formatBytes(file.size) + ")";
         }
         fileTitleLabel.innerText = fileInfoText;
         let fileAudioTracksLabel = document.getElementById('fileAudioTracks');
@@ -175,9 +179,9 @@ function updateFileInfo(file) {
 
 function encodeVideo() {
     if (currentFile) {
-        let startTime = timeFormatToNumber(document.getElementById('startTime').value);
-        let endTime = timeFormatToNumber(document.getElementById('endTime').value);
-        let fileTargetSize = byteFormatToNumber(document.getElementById('fileSizeField').value);
+        let startTime = utility.timeFormatToNumber(document.getElementById('startTime').value);
+        let endTime = utility.timeFormatToNumber(document.getElementById('endTime').value);
+        let fileTargetSize = utility.byteFormatToNumber(document.getElementById('fileSizeField').value);
         let isAudioMerged = document.getElementById("MergeAudio-Check").checked;
         let duration = currentMetaData.format.duration;
 
@@ -200,7 +204,14 @@ function encodeVideo() {
             duration = endTime;
         }
 
-        console.log(" bitrate " + calculateBitRate(duration, fileTargetSize) + " kbps.");
+        let maxBitRate = 1600;
+        if (currentSettings){
+            let tmp = utility.byteFormatToNumber(currentSettings.maxBitrate);
+            if (!isNaN(tmp)) {
+                maxBitRate = tmp / 1024;
+            }
+        }
+        console.log(" bitrate " + utility.calculateBitRate(duration, fileTargetSize, maxBitRate) + " kbps.");
         
 
         let outputName = "output.mp4";
@@ -223,7 +234,7 @@ function encodeVideo() {
             file: currentFile.path,
             startTime: startTime,
             endTime: endTime,
-            bitrate: calculateBitRate(duration, fileTargetSize),
+            bitrate: utility.calculateBitRate(duration, fileTargetSize, maxBitRate),
             mergeAudio: isAudioMerged,
             metaData: currentMetaData,
             'codec': codec,
@@ -234,18 +245,47 @@ function encodeVideo() {
     }
 }
 
-function formatBytes(bytes, decimals = 2) {
-    if (isNaN(bytes)) {
-        return 'N/A';
+SimpleTranscoder.getSettings().then((data) => {
+    currentSettings = data;
+    let mergeAudio = document.getElementById("MergeAudio-Check");
+    if (mergeAudio) {
+        mergeAudio.checked = data.mergeAudio;
+        mergeAudio.parentElement.classList.toggle('is-checked', data.mergeAudio);
+        mergeAudio.addEventListener('change', (e) => {
+            currentSettings.mergeAudio = e.target.checked;
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
     }
-    if (bytes === 0) return '0 Bytes';
 
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    let codecSelect = document.getElementById("codecSelect");
+    if (codecSelect) {
+        codecSelect.value = data.codec;
+        codecSelect.addEventListener('change', (e) => {
+            currentSettings.codec = e.target.value;
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
 
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    let fileSizeField = document.getElementById("fileSizeField");
+    if (fileSizeField) {
+        fileSizeField.value = data.sizeTarget
+        fileSizeField.addEventListener('change', (e) => {
+            currentSettings.sizeTarget = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
+    let maxBitField = document.getElementById("MaxBitField");
+    if (maxBitField) {
+        maxBitField.value = data.maxBitrate
+        maxBitField.addEventListener('change', (e) => {
+            currentSettings.maxBitrate = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
 
+    let ffmpegLabel = document.getElementById("ffmpegPathLabel");
+    if (ffmpegLabel) {
+        ffmpegLabel.innerText = data.ffmpegPath;
+    }
+});

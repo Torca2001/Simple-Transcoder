@@ -34,7 +34,13 @@ contextBridge.exposeInMainWorld('SimpleTranscoder', {
     },
     cancelEncode() {
         return ipcRenderer.invoke('cancelEncode');
-    }
+    },
+    getSettings() {
+        return ipcRenderer.invoke('getSettings');
+    },
+    saveSettings(settings) {
+        return ipcRenderer.invoke('saveSettings', settings);
+    },
 });
 
 function updateProgressBar(progress) {
@@ -130,4 +136,3 @@ function formatBytes(bytes, decimals = 2) {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
-

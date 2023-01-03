@@ -77,13 +77,13 @@
                   </h4>
                 </div>
                 <div class="file-info-spacing">
-                  <div class="mdl-textfield mdl-js-textfield">
-                    <input class="mdl-textfield__input" type="text" pattern="^[1-9]\d*[kmgKMG]?[bB]?$" id="fileSizeField" value="8M">
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="^[1-9]\d*\s?[kmgKMG]?[bB]?$" id="fileSizeField" value="8M">
                     <label class="mdl-textfield__label" for="fileSizeField">Target Size</label>
                     <span class="mdl-textfield__error">Not valid file size!</span>
                   </div>
-                  <div class="mdl-textfield mdl-js-textfield">
-                    <input class="mdl-textfield__input" type="text" pattern="^[1-9]\d*[kmgKMG]?[bB]?$" id="MaxBitField" value="1600k">
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="^[1-9]\d*\s?[kmgKMG]?[bB]?$" id="MaxBitField" value="1600k">
                     <label class="mdl-textfield__label" for="MaxBitField">Max Bitrate</label>
                     <span class="mdl-textfield__error">Not valid bit size!</span>
                   </div>
@@ -128,8 +128,8 @@
         </div>
       </main>
     </div> 
-    <script src="./utility.js"></script>
-    <script src="./renderer.js"></script>
+    <script src="./utility.js" type="module"></script>
+    <script src="./renderer.js" type="module"></script>
   </body>
 </html>
 

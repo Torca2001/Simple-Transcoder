@@ -1,8 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const {
-    spawn
-} = require('child_process');
+const { spawn } = require('child_process');
 const path = require('path');
+const settingsHandler = require('./settings.js');
 const fs = require('fs');
 
 // this should be placed at top of main.js to handle setup events quickly
@@ -17,7 +16,6 @@ function handleSquirrelEvent() {
     }
 
     const ChildProcess = require('child_process');
-    const path = require('path');
 
     const appFolder = path.resolve(process.execPath, '..');
     const rootAtomFolder = path.resolve(appFolder, '..');
@@ -112,6 +110,13 @@ app.whenReady().then(() => {
     ipcMain.handle('setFFmpegPath', setFFmpegPath)
     ipcMain.handle('getFFmpegPath', () => ffmpegLoc);
     ipcMain.handle('cancelEncode', cancelEncode);
+    ipcMain.handle('getSettings', settingsHandler.loadSettings);
+    ipcMain.handle('saveSettings', (_, data) => settingsHandler.saveSettings(data));
+
+    let settings = settingsHandler.loadSettings();
+    if (settings.ffmpegPath) {
+        setFFmpegPath(null, settings.ffmpegPath);
+    }
 })
 
 app.on('window-all-closed', () => {
