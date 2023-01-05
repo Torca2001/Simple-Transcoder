@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const defaultSettings = {
-    ffmpegPath: "ffmpeg",
-    maxBitrate: "1600k",
+    ffmpegPath: "FFmpeg",
+    maxBitrate: "16000k",
     codec: "h264",
     sizeTarget: "8m",
     mergeAudio: true,

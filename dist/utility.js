@@ -74,7 +74,7 @@ export function timeFormatToNumber(input) {
     return total;
 }
 
-export function calculateBitRate(totalTime, targetSize = defaultFileSize, maxBitRate = 1600) {
+export function calculateBitRate(totalTime, targetSize = defaultFileSize, maxBitRate = 16000) {
     //return (8 * 8192) / (1.048576 * totalTime) - 64;
     let scaler = 1000 * 8 / 1024 / 1024;
     return Math.min(Math.floor((targetSize * scaler - 1) * 0.99 / totalTime - 64), maxBitRate);

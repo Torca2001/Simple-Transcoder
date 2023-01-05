@@ -71,9 +71,16 @@ function updateProgressBar(progress) {
         progressPercent.innerText = progressPercRnd + "%";
     }
 
-    let progressBody = document.getElementsByClassName("transcoderBodyProgress");
-    if (progressBody.length > 0) {
-        progressBody[0].innerText = `Bitrate: ${progress.bitrate}, Speed: ${progress.speed}, Time: ${progress.out_time}, Fps: ${progress.fps}, Size: ${formatBytes(progress.total_size)}, Frames: ${progress.frame}`
+    let progressInfo = document.getElementsByClassName("transcoder__info");
+    if (progressInfo.length > 0) {
+        progressInfo[0].innerHTML = `
+        <span>Bitrate: ${progress.bitrate}</span>
+        <span> Speed: ${progress.speed}</span>
+        <span>Fps: ${progress.fps}</span>
+        <span>Time: ${progress.out_time}</span>
+        <span>Size: ${formatBytes(progress.total_size)}</span>
+        <span>Frames: ${progress.frame}</span>
+        `;
     }
 }
 

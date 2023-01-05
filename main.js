@@ -71,12 +71,15 @@ function handleSquirrelEvent() {
     }
 };
 
-let mainWindow, ffmpegLoc = "ffmpeg";
+let mainWindow, ffmpegLoc = "FFmpeg";
+let debug = require('inspector').url() !== undefined;
+
 const createWindow = () => {
     const win = new BrowserWindow({
         width: 800,
-        height: 600,
-
+        height: 650,
+        minWidth: 800,
+        minHeight: 650,
         webPreferences: {
             nodeIntegration: false,
             preload: path.join(__dirname, 'preload.js')
@@ -84,7 +87,11 @@ const createWindow = () => {
     });
 
     //win.maximize();
-    //win.removeMenu();
+
+    if (!debug) {
+        win.removeMenu();
+    }
+
     win.loadFile('dist/index.html');
     return win;
 }
@@ -126,7 +133,7 @@ app.on('window-all-closed', () => {
 async function setFFmpegPath(_, ffmpegPath) {
     ffmpegPath = ffmpegPath.toLowerCase();
     if (ffmpegPath == "ffmpeg") {
-        ffmpegLoc = "ffmpeg";
+        ffmpegLoc = "FFmpeg";
         return true;
     }
     else {
@@ -153,7 +160,7 @@ async function getvideoFileMeta(filePath) {
         }
 
         let ffmpegPath = ffmpegLoc;
-        if (ffmpegLoc == "ffmpeg") {
+        if (ffmpegLoc == "FFmpeg") {
             ffmpegPath = "ffprobe";
         } else {
             ffmpegPath = path.join(ffmpegPath, "ffprobe.exe");
@@ -250,7 +257,7 @@ function encodeVideo(_, options) {
         }
 
         let ffmpegPath = ffmpegLoc;
-        if (ffmpegLoc != "ffmpeg") {
+        if (ffmpegLoc != "FFmpeg") {
             ffmpegPath = path.join(ffmpegPath, "ffmpeg.exe");
         }
 

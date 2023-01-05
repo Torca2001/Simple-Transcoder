@@ -124,6 +124,18 @@ function setupControls() {
         });
     }
 
+    let ffmpegResetButton = document.getElementById('ffmpegPathResetButton');
+    if (ffmpegResetButton) {
+        ffmpegResetButton.addEventListener('click', () => {
+            SimpleTranscoder.setFFmpegPath("FFmpeg");
+            SimpleTranscoder.getFFmpegPath().then((data) => {
+                ffmpegLabel.innerText = data;
+                currentSettings.ffmpegPath = data
+                SimpleTranscoder.saveSettings(currentSettings);
+            });
+        });
+    }
+
     let cancelButton = document.getElementById('cancelEncode');
     if (cancelButton) {
         cancelButton.addEventListener('click', () => {

@@ -96,8 +96,11 @@
                     <label class="mdl-textfield__label" for="codecSelect">Codec</label>
                   </div>
                 </div>
-                <div class="file-info-spacing">
+                <div class="file-info-spacing ffmpeg-Path__Div">
                   <span id="ffmpegPathLabel">FFmpeg</span>
+                  <button class="mdl-button mdl-js-button mdl-button--icon mdl-button--accent" id="ffmpegPathResetButton">
+                    <i class="material-icons">close</i>
+                  </button>
                   <button class="mdl-button mdl-js-button mdl-button--raised encode-button-div mdl-button--colored" id="ffmpegPathButton">
                     Browse
                   </button>
@@ -106,6 +109,8 @@
             </div>
           </div>
         </div>
+
+        <!-- Progress Div -->
         <div class="progressDiv transcoder-collapsible mdl-shadow--2dp hidden">
           <div class="transcoderHeaderProgress">
             <div>
@@ -118,13 +123,16 @@
             </div>
           </div>
           <div class="transcoderBodyProgress">
-            Encode info
+            <div class="transcoder__info">
+              Encode info
+            </div>
+            <div class="transcoderActionsProgress">
+              <button class="mdl-button mdl-js-button mdl-button--raised encode-button-div mdl-button--accent" id="cancelEncode">
+                Cancel
+              </button>
+            </div>
           </div>
-          <div class="transcoderActionsProgress">
-            <button class="mdl-button mdl-js-button mdl-button--raised encode-button-div mdl-button--accent" id="cancelEncode">
-              Cancel
-            </button>
-          </div>
+          
         </div>
       </main>
     </div> 
