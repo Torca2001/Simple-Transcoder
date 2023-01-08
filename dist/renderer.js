@@ -38,6 +38,8 @@ function setCurrentFile(newFile) {
                 console.error(e);
             }
         });
+
+        console.log(mainPlayer)
     } else {
         document.title = "Simple Transcoder";
     }
@@ -173,19 +175,42 @@ function setupControls() {
 function updateFileInfo(file) {
     let fileTitleLabel = document.getElementById('fileTitleLabel');
     if (fileTitleLabel) {
-        let fileInfoText = "";
-        if (file) {
-            fileInfoText = file.name + " (" + utility.formatBytes(file.size) + ")";
+        fileTitleLabel.innerText = file.name;
+    }
+
+    let fileAudioTracksLabel = document.getElementById('fileAudioTracks');
+    if (fileAudioTracksLabel) {
+        let count = 0
+        if (currentMetaData && currentMetaData.streams) {
+            count = currentMetaData.streams.filter((e) => e.codec_type == "audio").length;
         }
-        fileTitleLabel.innerText = fileInfoText;
-        let fileAudioTracksLabel = document.getElementById('fileAudioTracks');
-        if (fileAudioTracksLabel) {
-            let count = 0
-            if (currentMetaData && currentMetaData.streams) {
-                count = currentMetaData.streams.filter((e) => e.codec_type == "audio").length;
+        fileAudioTracksLabel.innerText = count;
+    }
+
+    let fileSizeLabel = document.getElementById('fileSizeLabel');
+    if (fileSizeLabel) {
+        fileSizeLabel.innerText = utility.formatBytes(file.size);
+    }
+
+    let fileCodecLabel = document.getElementById('fileCodecLabel');
+    if (fileCodecLabel) {
+        let codec = ""
+        if (currentMetaData && currentMetaData.streams) {
+            let videoStreams = currentMetaData.streams.filter((e) => e.codec_type == "video");
+            if (videoStreams.length > 0) {
+                codec = videoStreams[0].codec_long_name;
             }
-            fileAudioTracksLabel.innerText = count;
         }
+        fileCodecLabel.innerText = codec;
+    }
+
+    let fileBitRateLabel = document.getElementById('fileBitRateLabel');
+    if (fileBitRateLabel) {
+        let bitRate = 0
+        if (currentMetaData && currentMetaData.format.bit_rate) {
+            bitRate = Math.round(Number(currentMetaData.format.bit_rate) / 1024);
+        }
+        fileBitRateLabel.innerText = bitRate + " kbps"
     }
 }
 
