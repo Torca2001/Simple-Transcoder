@@ -251,10 +251,10 @@ function encodeVideo() {
         console.log(" bitrate " + utility.calculateBitRate(duration, fileTargetSize, maxBitRate) + " kbps.");
         
 
-        let outputName = "output.mp4";
+        let outputName = currentFile.name;
 
         if (outputName.trim() == "") {
-            outputName = currentFile.name;
+            outputName = "output";
         }
 
         let codecSelect = document.getElementById("codecSelect");
@@ -265,7 +265,12 @@ function encodeVideo() {
         }
 
         let outputDir = currentFile.path.substring(0, currentFile.path.lastIndexOf('\\'));
-        let outputFilePath = outputDir + '\\' + outputName;
+
+        let outputFilePath = currentSettings.outputPath;
+
+        outputFilePath = outputFilePath.replace(/\{sourceFolder\}/, outputDir);
+        outputFilePath = outputFilePath.replace(/\{filename\}/, outputName);
+
 
         let options = {
             file: currentFile.path,
@@ -324,5 +329,14 @@ SimpleTranscoder.getSettings().then((data) => {
     let ffmpegLabel = document.getElementById("ffmpegPathLabel");
     if (ffmpegLabel) {
         ffmpegLabel.innerText = data.ffmpegPath;
+    }
+
+    let outputPathTextField = document.getElementById('outputPathTextField');
+    if (outputPathTextField) {
+        outputPathTextField.value = data.outputPath;
+        outputPathTextField.addEventListener('change', (e) => {
+            currentSettings.outputPath = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
     }
 });

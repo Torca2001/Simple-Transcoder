@@ -8,6 +8,7 @@ const defaultSettings = {
     codec: "h264",
     sizeTarget: "8m",
     mergeAudio: true,
+    outputPath: "{sourceFolder}/{filename}-trimmed.mp4",
 }
 
 function saveSettings(data) {

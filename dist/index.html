@@ -101,6 +101,11 @@
                     </select>
                     <label class="mdl-textfield__label" for="codecSelect">Codec</label>
                   </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="\S*" id="outputPathTextField" value="{sourceFolder}/{filename}.mp4">
+                    <label class="mdl-textfield__label" for="MaxBitField">Output Path</label>
+                    <span class="mdl-textfield__error">Not valid folder path</span>
+                  </div>
                 </div>
                 <div class="file-info-spacing ffmpeg-Path__Div">
                   <span id="ffmpegPathLabel">FFmpeg</span>
