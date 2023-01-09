@@ -38,8 +38,6 @@ function setCurrentFile(newFile) {
                 console.error(e);
             }
         });
-
-        console.log(mainPlayer)
     } else {
         document.title = "Simple Transcoder";
     }
