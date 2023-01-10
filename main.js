@@ -250,7 +250,7 @@ function encodeVideo(_, options) {
             for (let index = 0; index < audioStreams.length; index++) {
                 audioParams += `[0:a:${index}]`;
             }
-            audioParams += "amix=" + audioStreams.length + ":longest:weights=";
+            audioParams += "amix=" + audioStreams.length + ":longest:normalize=disabled:weights=";
             for (let index = 0; index < audioStreams.length; index++) {
                 audioParams += "1 ";
             }
