@@ -269,16 +269,21 @@ function encodeVideo() {
         outputFilePath = outputFilePath.replace(/\{sourceFolder\}/, outputDir);
         outputFilePath = outputFilePath.replace(/\{filename\}/, outputName);
 
+        let maxFPS = Number(currentSettings.maxFPS);
+        if (isNaN(maxFPS) || maxFPS < 1) {
+            maxFPS = 60;
+        }
 
         let options = {
-            file: currentFile.path,
-            startTime: startTime,
-            endTime: endTime,
-            bitrate: utility.calculateBitRate(duration, fileTargetSize, maxBitRate),
-            mergeAudio: isAudioMerged,
-            metaData: currentMetaData,
+            'file': currentFile.path,
+            'startTime': startTime,
+            'endTime': endTime,
+            'bitrate': utility.calculateBitRate(duration, fileTargetSize, maxBitRate),
+            'mergeAudio': isAudioMerged,
+            'metaData': currentMetaData,
+            'maxFPS': maxFPS,
             'codec': codec,
-            outputFilePath: outputFilePath
+            'outputFilePath': outputFilePath
         };
 
         SimpleTranscoder.encodeVideo(options);
@@ -334,6 +339,15 @@ SimpleTranscoder.getSettings().then((data) => {
         outputPathTextField.value = data.outputPath;
         outputPathTextField.addEventListener('change', (e) => {
             currentSettings.outputPath = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
+
+    let maxFPSField = document.getElementById("fpsLimitField");
+    if (maxFPSField) {
+        maxFPSField.value = data.maxFPS;
+        maxFPSField.addEventListener('change', (e) => {
+            currentSettings.maxFPS = e.target.value
             SimpleTranscoder.saveSettings(currentSettings);
         });
     }

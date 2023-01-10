@@ -9,6 +9,7 @@ const defaultSettings = {
     sizeTarget: "8m",
     mergeAudio: true,
     outputPath: "{sourceFolder}/{filename}-trimmed.mp4",
+    maxFPS: 60,
 }
 
 function saveSettings(data) {

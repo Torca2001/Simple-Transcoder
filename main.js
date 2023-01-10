@@ -9,7 +9,7 @@ if (handleSquirrelEvent()) {
     // squirrel event handled and app will exit in 1000ms, so don't do anything else
     return;
 }
-  
+
 function handleSquirrelEvent() {
     if (process.argv.length === 1) {
         return false;
@@ -197,7 +197,10 @@ function encodeVideo(_, options) {
             percentage: 0,
         };
 
-        let frameRate = 60;
+        let frameRate = Number(options.maxFPS);
+        if (isNaN(frameRate) || frameRate < 1) {
+            frameRate = 60;
+        }
         let input = options.file;
 
         let funcArgs = ['-i', input, '-c:v', options.codec, '-b:v', `${options.bitrate}k`, '-maxrate', `${options.bitrate * 1.1}k`, '-bufsize', '1M', '-r', frameRate];
