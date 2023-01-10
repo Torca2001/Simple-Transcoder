@@ -10,6 +10,7 @@ const defaultSettings = {
     mergeAudio: true,
     outputPath: "{sourceFolder}/{filename}-trimmed.mp4",
     maxFPS: 60,
+    copyToClipboard: true,
 }
 
 function saveSettings(data) {

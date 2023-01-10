@@ -283,7 +283,8 @@ function encodeVideo() {
             'metaData': currentMetaData,
             'maxFPS': maxFPS,
             'codec': codec,
-            'outputFilePath': outputFilePath
+            'outputFilePath': outputFilePath,
+            'copyOnFinish': Boolean(currentSettings.copyToClipboard),
         };
 
         SimpleTranscoder.encodeVideo(options);
@@ -348,6 +349,16 @@ SimpleTranscoder.getSettings().then((data) => {
         maxFPSField.value = data.maxFPS;
         maxFPSField.addEventListener('change', (e) => {
             currentSettings.maxFPS = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
+
+    let clipboardCopyField = document.getElementById("copyToClipboardBox");
+    if (clipboardCopyField) {
+        clipboardCopyField.checked = data.copyToClipboard;
+        clipboardCopyField.parentElement.classList.toggle('is-checked', data.copyToClipboard);
+        clipboardCopyField.addEventListener('change', (e) => {
+            currentSettings.copyToClipboard = e.target.checked;
             SimpleTranscoder.saveSettings(currentSettings);
         });
     }

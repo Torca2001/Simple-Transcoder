@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, clipboard } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
 const settingsHandler = require('./settings.js');
@@ -313,6 +313,10 @@ function encodeVideo(_, options) {
         ffmpeg.stdout.on('end', function () {
             mainWindow.webContents.send('encode-complete', progress);
             console.log("ffmpeg complete");
+
+            if (options.copyOnFinish) {
+                clipboard.writeBuffer('FileNameW', Buffer.from(options.outputFilePath + '\0', 'ucs2'));
+            }
         });
     }
     return false;
