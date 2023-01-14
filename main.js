@@ -232,15 +232,14 @@ function encodeVideo(_, options) {
 
         progress.duration = duration;
 
-        /*
-        if (!isNaN(encodeItem.width) && Number(encodeItem.width) > 0 && Number(encodeItem.width) < encodeItem.metadata.video_width) {
+        // Limit video size
+        if (!isNaN(options.width) && Number(options.width) >= 200 && Number(options.width) < options.metaData.width) {
             funcArgs.push('-vf');
-            funcArgs.push(`scale=${Number(encodeItem.width)}:-1:flags=bicubic`);
-        } else if (!isNaN(encodeItem.height) && Number(encodeItem.height) > 0 && Number(encodeItem.height) < encodeItem.metadata.video_height) {
+            funcArgs.push(`scale=${Number(options.width)}:-1:flags=bicubic`);
+        } else if (!isNaN(options.height) && Number(options.height) >= 200 && Number(options.height) < options.metaData.height) {
             funcArgs.push('-vf');
-            funcArgs.push(`scale=-1:${Number(encodeItem.height)}:flags=bicubic`);
+            funcArgs.push(`scale=-1:${Number(options.height)}:flags=bicubic`);
         }
-        */
 
         // get audio streams from metaData
         let audioStreams = options.metaData.streams.filter((e) => e.codec_type == "audio");

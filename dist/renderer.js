@@ -31,6 +31,13 @@ function setCurrentFile(newFile) {
             try {
                 currentMetaData = JSON.parse(data);
                 currentMetaData.format.duration = Number(currentMetaData.format.duration);
+
+                let videoStreams = currentMetaData.streams.filter((e) => e.codec_type == "video");
+                if (videoStreams.length > 0) {
+                    currentMetaData.height = videoStreams[0].height;
+                    currentMetaData.width = videoStreams[0].width;
+                }
+
                 updateFileInfo(currentFile);
             }
             catch (e) {
