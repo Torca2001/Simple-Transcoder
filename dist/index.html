@@ -116,6 +116,16 @@
                     <input type="checkbox" id="copyToClipboardBox" class="mdl-checkbox__input" checked>
                     <span class="mdl-checkbox__label">Copy to Clipboard</span>
                   </label>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="^([2-9]\d\d|[1-9]\d{3,})$" id="maxWidthField" value="1920">
+                    <label class="mdl-textfield__label" for="maxWidthField">Max Width (px)</label>
+                    <span class="mdl-textfield__error">Width must be greater than 200px</span>
+                  </div>
+                  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="^([2-9]\d\d|[1-9]\d{3,})$" id="maxHeightField" value="1080">
+                    <label class="mdl-textfield__label" for="maxHeightField">Max Height (px)</label>
+                    <span class="mdl-textfield__error">Height must be greater than 200px</span>
+                  </div>
                 </div>
                 <div class="file-info-spacing ffmpeg-Path__Div">
                   <span id="ffmpegPathLabel">FFmpeg</span>

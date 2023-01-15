@@ -11,6 +11,8 @@ const defaultSettings = {
     outputPath: "{sourceFolder}/{filename}-trimmed.mp4",
     maxFPS: 60,
     copyToClipboard: true,
+    maxWidth: "1920",
+    maxHeight: "1080",
 }
 
 function saveSettings(data) {

@@ -281,6 +281,16 @@ function encodeVideo() {
             maxFPS = 60;
         }
 
+        let maxWidth = Number(currentSettings.maxWidth);
+        if (isNaN(maxWidth) || maxWidth < 200) {
+            maxWidth = 1920;
+        }
+
+        let maxHeight = Number(currentSettings.maxHeight);
+        if (isNaN(maxHeight) || maxHeight < 200) {
+            maxHeight = 1080;
+        }
+
         let options = {
             'file': currentFile.path,
             'startTime': startTime,
@@ -292,6 +302,8 @@ function encodeVideo() {
             'codec': codec,
             'outputFilePath': outputFilePath,
             'copyOnFinish': Boolean(currentSettings.copyToClipboard),
+            'width': maxWidth,
+            'height': maxHeight
         };
 
         SimpleTranscoder.encodeVideo(options);
@@ -369,4 +381,23 @@ SimpleTranscoder.getSettings().then((data) => {
             SimpleTranscoder.saveSettings(currentSettings);
         });
     }
+
+    let maxWidthField = document.getElementById("maxWidthField");
+    if (maxWidthField) {
+        maxWidthField.value = data.maxWidth;
+        maxWidthField.addEventListener('change', (e) => {
+            currentSettings.maxWidth = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
+
+    let maxHeightField = document.getElementById("maxHeightField");
+    if (maxHeightField) {
+        maxHeightField.value = data.maxHeight;
+        maxHeightField.addEventListener('change', (e) => {
+            currentSettings.maxHeight = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
+
 });
