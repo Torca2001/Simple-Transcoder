@@ -303,7 +303,8 @@ function encodeVideo() {
             'outputFilePath': outputFilePath,
             'copyOnFinish': Boolean(currentSettings.copyToClipboard),
             'width': maxWidth,
-            'height': maxHeight
+            'height': maxHeight,
+            'normalizeAudio': Boolean(currentSettings.normalizeAudio),
         };
 
         SimpleTranscoder.encodeVideo(options);
@@ -396,6 +397,16 @@ SimpleTranscoder.getSettings().then((data) => {
         maxHeightField.value = data.maxHeight;
         maxHeightField.addEventListener('change', (e) => {
             currentSettings.maxHeight = e.target.value
+            SimpleTranscoder.saveSettings(currentSettings);
+        });
+    }
+
+    let normalizeAudioField = document.getElementById("normalizeAudioBox");
+    if (normalizeAudioField) {
+        normalizeAudioField.checked = data.normalizeAudio;
+        normalizeAudioField.parentElement.classList.toggle('is-checked', data.normalizeAudio);
+        normalizeAudioField.addEventListener('change', (e) => {
+            currentSettings.normalizeAudio = e.target.checked;
             SimpleTranscoder.saveSettings(currentSettings);
         });
     }

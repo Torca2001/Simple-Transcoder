@@ -13,6 +13,7 @@ const defaultSettings = {
     copyToClipboard: true,
     maxWidth: "1920",
     maxHeight: "1080",
+    normalizeAudio: false
 }
 
 function saveSettings(data) {
