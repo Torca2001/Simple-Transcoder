@@ -96,7 +96,7 @@ const createWindow = () => {
     return win;
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     mainWindow = createWindow()
   
     app.on('activate', () => {
@@ -119,6 +119,7 @@ app.whenReady().then(() => {
     ipcMain.handle('cancelEncode', cancelEncode);
     ipcMain.handle('getSettings', settingsHandler.loadSettings);
     ipcMain.handle('saveSettings', (_, data) => settingsHandler.saveSettings(data));
+    ipcMain.handle('getAvailableEncoders', getAvailableEncoders);
 
     let settings = settingsHandler.loadSettings();
     if (settings.ffmpegPath) {
@@ -148,6 +149,131 @@ async function setFFmpegPath(_, ffmpegPath) {
         }
     }
     return false;
+}
+
+// Load encoders
+let encoders = [
+    require('./dist/encoders/h264.js'),
+    require('./dist/encoders/hevc.js'),
+    require('./dist/encoders/vp9.js'),
+    require('./dist/encoders/av1.js')
+]
+
+if (encoders.length > 0) {
+    let newEncoders = {};
+    for (let item of encoders) {
+        for (let key in item.codecs) {
+            newEncoders[key] = item.codecs[key];
+        }
+    }
+    encoders = newEncoders;
+}
+
+async function getAvailableEncoders() {
+    return await checkEncoders(encoders);
+}
+
+async function checkEncoders(encodersToCheck) {
+    let validEncoders = new Set();
+    for (const encoder in encodersToCheck) {
+        let result = await checkCodec(encoder);
+        if (result) {
+            validEncoders.add(encoder);
+        }
+    }
+
+    return validEncoders;
+}
+
+function checkCodec(codec) {
+    return new Promise((resolve, reject) => {
+        let ffmpegPath = ffmpegLoc;
+        if (ffmpegLoc == "FFmpeg") {
+            ffmpegPath = "ffmpeg";
+        }
+
+        let ffmpeg = spawn(ffmpegPath, ['-loglevel', 'error', '-f', 'lavfi', '-i', 'color=black:s=1080x1080', '-vframes', '1', '-an', '-c:v', codec, '-f', 'null', '-']);
+        let str = "";
+
+        ffmpeg.stderr.on('data', function (data) {
+            str += data;
+        });
+
+        ffmpeg.stdout.on('data', function (data) {
+            str += data;
+        });
+
+        ffmpeg.stderr.on('end', function () {
+            resolve(str.length <= 0);
+        });
+    });
+}
+
+function getSystemAvailableCodecs() {
+    return new Promise((resolve, reject) => {
+        let ffmpegPath = ffmpegLoc;
+        if (ffmpegLoc == "FFmpeg") {
+            ffmpegPath = "ffmpeg";
+        }
+
+        let ffmpeg = spawn(ffmpegPath, ['-hide_banner', '-codecs', '-loglevel', '0']);
+        let str = "";
+
+        ffmpeg.stdout.on('data', function (data) {
+            str += data;
+        });
+
+        ffmpeg.stdout.on('end', function () {
+            let codecs = {};
+
+            //^\s{0,4}([\.D][\.E][\.VAS][\.I][\.L][\.S])\s{1,2}(\w*)\s+(.*)$
+            let videoCodecRegex = /^\s{0,4}([\.D][\.E][\.V][\.I][\.L][\.S])\s{1,2}(\w*)\s+(.*)$/gm;
+            let decoderRegex = /\(\s*decoders:\s*?(.*?)\s*?\)/;
+            let encoderRegex = /\(\s*encoders:\s*?(.*?)\s*?\)/;
+
+            let videoCodecs = str.matchAll(videoCodecRegex);
+
+            for (const videoCodec of videoCodecs) {
+                codecs[videoCodec[2]] = {
+                    canEncode: videoCodec[1].includes("E"),
+                    canDecode: videoCodec[1].includes("D")
+                };
+
+                let decoders = videoCodec[3].match(decoderRegex);
+                if (decoders) {
+                    decoders = decoders[1].split(" ");
+                    for (const decoder of decoders) {
+                        if (!codecs[decoder]) {
+                            codecs[decoder] = {
+                                canEncode: false,
+                                canDecode: true
+                            };
+                        }
+
+                        codecs[decoder].canDecode = true;
+                    }
+                }
+
+                let encoders = videoCodec[3].match(encoderRegex);
+                if (encoders) {
+                    encoders = encoders[1].split(" ");
+                    for (const encoder of encoders) {
+                        if (!codecs[encoder]) {
+                            codecs[encoder] = {
+                                canEncode: true,
+                                canDecode: false
+                            };
+                        }
+
+                        codecs[encoder].canEncode = true;
+                    }
+                }
+            }
+
+            resolve(codecs);
+        });
+    });
+
 }
 
 async function getvideoFileMeta(filePath) {
@@ -204,11 +330,9 @@ function encodeVideo(_, options) {
         let input = options.file;
 
         let funcArgs = ['-i', input, '-c:v', options.codec, '-b:v', `${options.bitrate}k`, '-maxrate', `${options.bitrate * 1.1}k`, '-bufsize', '1M', '-r', frameRate];
-        if (options.codec == "libvpx-vp9") {
-            funcArgs.push('-row-mt');
-            funcArgs.push('1');
-            funcArgs.push('-cpu-used');
-            funcArgs.push('3');
+
+        if (encoders[options.codec] != undefined ) {
+            funcArgs.concat(encoders[options.codec].generateArgs(options));
         }
 
         let duration = options.metaData.format.duration;
@@ -264,7 +388,7 @@ function encodeVideo(_, options) {
             ffmpegPath = path.join(ffmpegPath, "ffmpeg.exe");
         }
 
-        ffmpeg = spawn(ffmpegPath, funcArgs.concat(['-c:a', 'libopus', '-b:a', '64k', '-movflags', '+faststart', '-y', '-progress', 'pipe:1', '-stats_period', '0.1', options.outputFilePath]), )
+        ffmpeg = spawn(ffmpegPath, funcArgs.concat(['-vf', 'format=yuv420p', '-c:a', 'libopus', '-b:a', '64k', '-movflags', '+faststart', '-y', '-progress', 'pipe:1', '-stats_period', '0.1', options.outputFilePath]), )
 
         //informEncode(progress);
 
@@ -307,7 +431,7 @@ function encodeVideo(_, options) {
 
         ffmpeg.stderr.on("data", data => {
             //encodeItem.log += data.toString();
-            //console.log(`stderr: ${data}`);
+            console.log(`stderr: ${data}`);
         });
 
         ffmpeg.stdout.on('end', function () {

@@ -3,9 +3,26 @@ import * as utility from './utility.js';
 let currentFile = undefined;
 let currentMetaData = undefined;
 let currentSettings = undefined;
+let encoders = loadEncoders();
 
 setupFileDrag();
 setupControls();
+
+
+function loadEncoders() {
+    let encoderList = ['h264', 'hevc', 'vp9', 'av1'];
+    let encoders = {};
+
+    for (let encoder of encoderList) {
+        if (globalThis[encoder] != undefined && globalThis[encoder].codecs != undefined) {
+            for (let codec in globalThis[encoder].codecs) {
+                encoders[codec] = globalThis[encoder].codecs[codec];
+            }
+        }
+    }
+
+    return encoders;
+}
 
 function setCurrentFile(newFile) {
     if (newFile != undefined && newFile.type.indexOf("video/") != 0) {
@@ -217,6 +234,16 @@ function updateFileInfo(file) {
         }
         fileBitRateLabel.innerText = bitRate + " kbps"
     }
+
+    let resolutionLabel = document.getElementById('resolutionLabel');
+    if (resolutionLabel) {
+        if (currentMetaData && currentMetaData.streams) {
+            let videoStreams = currentMetaData.streams.filter((e) => e.codec_type == "video");
+            if (videoStreams.length > 0) {
+                resolutionLabel.innerText = videoStreams[0].width + "x" + videoStreams[0].height;
+            }
+        }
+    }
 }
 
 function encodeVideo() {
@@ -325,11 +352,29 @@ SimpleTranscoder.getSettings().then((data) => {
 
     let codecSelect = document.getElementById("codecSelect");
     if (codecSelect) {
-        codecSelect.value = data.codec;
-        codecSelect.addEventListener('change', (e) => {
-            currentSettings.codec = e.target.value;
-            SimpleTranscoder.saveSettings(currentSettings);
+        SimpleTranscoder.getAvailableEncoders().then((availableCodecs) => {
+            codecSelect.innerHTML = "";
+            for (let codec of availableCodecs) {
+                let option = document.createElement('option');
+                option.value = codec;
+                option.innerText = encoders[codec].displayName;
+                codecSelect.appendChild(option);
+            }
+
+            if (availableCodecs.has(data.codec)) {
+                codecSelect.value = data.codec;
+            }
+            else {
+                codecSelect.value = "h264";
+            }
+
+            codecSelect.addEventListener('change', (e) => {
+                currentSettings.codec = e.target.value;
+                SimpleTranscoder.saveSettings(currentSettings);
+            });
         });
+
+        
     }
 
     let fileSizeField = document.getElementById("fileSizeField");

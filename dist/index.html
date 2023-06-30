@@ -33,6 +33,8 @@
               <span>Codec: </span><span id="fileCodecLabel"></span>
               <br/>
               <span>Bit rate: </span><span id="fileBitRateLabel"></span>
+              <br/>
+              <span>Resolution: </span><span id="resolutionLabel"></span>
             </div>
           </div>
           <div class ="mdl-cell margin-0 mdl-cell--12-col mdl-cell-80h width-100">
@@ -96,7 +98,6 @@
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                     <select class="mdl-textfield__input" id="codecSelect" name="codecSelect">
                       <option value="h264">H264</option>
-                      <option value="h264_nvenc">H264 Nvenc</option>
                       <option value="libx265">HEVC</option>
                       <option value="libvpx-vp9">Vp9</option>
                     </select>
@@ -172,6 +173,10 @@
       </main>
     </div> 
     <script src="./utility.js" type="module"></script>
+    <script src="./encoders/h264.js"></script>
+    <script src="./encoders/hevc.js"></script>
+    <script src="./encoders/vp9.js"></script>
+    <script src="./encoders/av1.js"></script>
     <script src="./renderer.js" type="module"></script>
   </body>
 </html>

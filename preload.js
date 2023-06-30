@@ -41,6 +41,9 @@ contextBridge.exposeInMainWorld('SimpleTranscoder', {
     saveSettings(settings) {
         return ipcRenderer.invoke('saveSettings', settings);
     },
+    getAvailableEncoders() {
+        return ipcRenderer.invoke('getAvailableEncoders');
+    }
 });
 
 function updateProgressBar(progress) {
