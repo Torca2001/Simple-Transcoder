@@ -14,6 +14,13 @@ div.file-info-spacing {
     padding: 4px 8px;
 }
 
+.file-info-spacing p {
+    margin: 0;
+    max-height: 24px;
+    overflow: hidden;
+    line-break: anywhere;
+}
+
 .trimfield.mdl-textfield {
     padding: 0 !important;
 }

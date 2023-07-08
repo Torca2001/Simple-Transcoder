@@ -235,7 +235,7 @@ function updateFileInfo(file) {
         fileBitRateLabel.innerText = bitRate + " kbps"
     }
 
-    let resolutionLabel = document.getElementById('resolutionLabel');
+    let resolutionLabel = document.getElementById('fileResolutionLabel');
     if (resolutionLabel) {
         if (currentMetaData && currentMetaData.streams) {
             let videoStreams = currentMetaData.streams.filter((e) => e.codec_type == "video");
