@@ -95,6 +95,12 @@ function setCurrentFile(newFile) {
         SimpleTranscoder.getVideoInfo(currentFile.path).then((data) => {
             try {
                 currentMetaData = JSON.parse(data);
+
+                if (currentMetaData.error != undefined) {
+                    alert(`Error reading metadata, check ffmpeg installation\nErr Code: ${currentMetaData.error.code}`);
+                    return;
+                }
+
                 currentMetaData.format.duration = Number(currentMetaData.format.duration);
 
                 let videoStreams = currentMetaData.streams.filter((e) => e.codec_type == "video");

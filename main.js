@@ -208,6 +208,10 @@ function checkCodec(codec) {
         let ffmpeg = spawn(ffmpegPath, args);
         let str = "";
 
+        ffmpeg.on("error", function (error) {
+            resolve(false);
+        });
+
         ffmpeg.stderr.on('data', function (data) {
             str += data;
         });
@@ -306,7 +310,13 @@ async function getvideoFileMeta(filePath) {
         } else {
             ffmpegPath = path.join(ffmpegPath, "ffprobe.exe");
         }
-        let ffprobe = spawn(ffmpegPath, ['-print_format', 'json', '-loglevel', '0', '-show_format', '-show_streams', input], )
+
+        let ffprobe = spawn(ffmpegPath, ['-print_format', 'json', '-loglevel', '0', '-show_format', '-show_streams', input], );
+
+        ffprobe.on("error", function (error) {
+            resolve(JSON.stringify({ error: error }));
+        });
+
         ffprobe.stdout.on('data', function (data) {
             str += data;
         });
