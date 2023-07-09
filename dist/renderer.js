@@ -7,6 +7,47 @@ let encoders = loadEncoders();
 
 setupFileDrag();
 setupControls();
+setupVideoPlayer();
+
+// Setup video player to sync with secondary audio tracks
+function setupVideoPlayer() {
+    let mainPlayer = document.getElementById('mainPlayer');
+    if (mainPlayer) {
+        mainPlayer.onpause = (ev) => {
+            pauseAudioTracks(mainPlayer.currentTime);
+        }
+
+        mainPlayer.onplay = (ev) => {
+            if (currentSettings.mergeAudio) {
+                playAudioTracks(mainPlayer.currentTime);
+            }
+        }
+    }
+}
+
+// Pause all secondary audio tracks
+function pauseAudioTracks(currentTime) {
+    let audioTracksDiv = document.getElementById('secondaryTracksdiv');
+    if (audioTracksDiv) {
+        let audioTracks = audioTracksDiv.getElementsByTagName('audio');
+        for (let audioTrack of audioTracks) {
+            audioTrack.pause();
+            audioTrack.currentTime = currentTime;
+        }
+    }
+}
+
+// Play all secondary audio tracks
+function playAudioTracks(currentTime) {
+    let audioTracksDiv = document.getElementById('secondaryTracksdiv');
+    if (audioTracksDiv) {
+        let audioTracks = audioTracksDiv.getElementsByTagName('audio');
+        for (let audioTrack of audioTracks) {
+            audioTrack.currentTime = currentTime;
+            audioTrack.play();
+        }
+    }
+}
 
 
 function loadEncoders() {
@@ -23,6 +64,8 @@ function loadEncoders() {
 
     return encoders;
 }
+
+
 
 function setCurrentFile(newFile) {
     if (newFile != undefined && newFile.type.indexOf("video/") != 0) {
@@ -44,6 +87,11 @@ function setCurrentFile(newFile) {
         document.title = "Simple Transcoder - " + currentFile.name; 
         mainPlayer.setAttribute('src', blobUrl);
 
+        let audioTracksDiv = document.getElementById('secondaryTracksdiv');
+        if (audioTracksDiv) {
+            audioTracksDiv.innerHTML = "";
+        }
+
         SimpleTranscoder.getVideoInfo(currentFile.path).then((data) => {
             try {
                 currentMetaData = JSON.parse(data);
@@ -53,6 +101,29 @@ function setCurrentFile(newFile) {
                 if (videoStreams.length > 0) {
                     currentMetaData.height = videoStreams[0].height;
                     currentMetaData.width = videoStreams[0].width;
+                }
+
+                // Create secondary audio players
+                let audioStreams = currentMetaData.streams.filter((e) => e.codec_type == "audio");
+                if (audioStreams.length > 1 && audioTracksDiv) {
+                    for (let index = 1; index < audioStreams.length; index++) {
+                        let audioTrackElement = document.createElement('audio');
+
+                        // Copy index to prevent modification from future iterations
+                        let id = index + 0;
+
+                        // Only enable the respective track with the index
+                        // Currently enabling multiple tracks doesn't work correctly
+                        audioTrackElement.addEventListener('canplay', (e) => {
+                            for (let i = 0; i < audioTrackElement.audioTracks.length; i++) {
+                                audioTrackElement.audioTracks[i].enabled = (i == id);
+                            }
+                        });
+
+                        audioTrackElement.setAttribute('src', blobUrl);
+
+                        audioTracksDiv.appendChild(audioTrackElement);
+                    }
                 }
 
                 updateFileInfo(currentFile);
@@ -273,6 +344,15 @@ function encodeVideo() {
             duration = endTime;
         }
 
+        let codecSelect = document.getElementById("codecSelect");
+        let codec = "h264";
+
+        if (codecSelect) {
+            codec = codecSelect.value;
+        }
+
+        let encoder = encoders[codec];
+        
         let maxBitRate = 1600;
         if (currentSettings){
             let tmp = utility.byteFormatToNumber(currentSettings.maxBitrate);
@@ -280,20 +360,15 @@ function encodeVideo() {
                 maxBitRate = tmp / 1024;
             }
         }
-        console.log(" bitrate " + utility.calculateBitRate(duration, fileTargetSize, maxBitRate) + " kbps.");
+
+        let bitRate = Math.min(encoder.bitRateCalc(duration, fileTargetSize), maxBitRate);
+        console.log("Bitrate: " + bitRate + " kbps");
         
 
         let outputName = currentFile.name;
 
         if (outputName.trim() == "") {
             outputName = "output";
-        }
-
-        let codecSelect = document.getElementById("codecSelect");
-        let codec = "h264";
-
-        if (codecSelect) {
-            codec = codecSelect.value;
         }
 
         let outputDir = currentFile.path.substring(0, currentFile.path.lastIndexOf('\\'));
@@ -322,7 +397,7 @@ function encodeVideo() {
             'file': currentFile.path,
             'startTime': startTime,
             'endTime': endTime,
-            'bitrate': utility.calculateBitRate(duration, fileTargetSize, maxBitRate),
+            'bitrate': bitRate,
             'mergeAudio': isAudioMerged,
             'metaData': currentMetaData,
             'maxFPS': maxFPS,
@@ -347,6 +422,13 @@ SimpleTranscoder.getSettings().then((data) => {
         mergeAudio.addEventListener('change', (e) => {
             currentSettings.mergeAudio = e.target.checked;
             SimpleTranscoder.saveSettings(currentSettings);
+            if (currentSettings.mergeAudio) {
+                if (!mainPlayer.paused) {
+                    playAudioTracks(mainPlayer.currentTime);
+                }
+            } else {
+                pauseAudioTracks(mainPlayer.currentTime);
+            }
         });
     }
 

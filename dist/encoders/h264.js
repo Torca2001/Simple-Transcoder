@@ -1,8 +1,6 @@
-function calculateBitRate(start, end, size) {
-    let scaler = 1000 * 8 / 1024 / 1024;
-    let totalTime = end - start;
-
-    return Math.min(Math.floor((size * scaler - 1) * 0.99 / totalTime - 64), maxBitRate);
+function calculateBitRate(totalTime, size) {
+    let scaler = 8 / 1024;
+    return Math.floor((size * scaler - 1) * 0.95 / totalTime - 64);
 }
 
 function generateArgs(options) {

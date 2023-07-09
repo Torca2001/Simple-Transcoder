@@ -96,6 +96,9 @@ const createWindow = () => {
     return win;
 }
 
+//Enable experimental features to allow for audio tracks
+app.commandLine.appendSwitch('enable-experimental-web-platform-features');
+
 app.whenReady().then(async () => {
     mainWindow = createWindow()
   
@@ -192,16 +195,28 @@ function checkCodec(codec) {
             ffmpegPath = "ffmpeg";
         }
 
-        let ffmpeg = spawn(ffmpegPath, ['-loglevel', 'error', '-f', 'lavfi', '-i', 'color=black:s=1080x1080', '-vframes', '1', '-an', '-c:v', codec, '-f', 'null', '-']);
+        let args = ['-loglevel', 'error', '-f', 'lavfi', '-i', 'color=black:s=1080x1080', '-vframes', '1', '-an', '-c:v', codec];
+
+        // For some reason this is needed for x265 to not output a bunch of logs
+        if (codec == "libx265") {
+            args.push('-x265-params');
+            args.push('log-level=0');
+        }
+
+        args = args.concat(['-f', 'null', '-']);
+
+        let ffmpeg = spawn(ffmpegPath, args);
         let str = "";
 
         ffmpeg.stderr.on('data', function (data) {
             str += data;
         });
 
+        /*
         ffmpeg.stdout.on('data', function (data) {
             str += data;
         });
+        */
 
         ffmpeg.stderr.on('end', function () {
             resolve(str.length <= 0);
@@ -357,12 +372,14 @@ function encodeVideo(_, options) {
         progress.duration = duration;
 
         // Limit video size
+        // Set video format to yuv420p, turning off 10 bit
+        funcArgs.push('-vf');
         if (!isNaN(options.width) && Number(options.width) >= 200 && Number(options.width) < options.metaData.width) {
-            funcArgs.push('-vf');
-            funcArgs.push(`scale=${Number(options.width)}:-1:flags=bicubic`);
+            funcArgs.push(`scale=${Number(options.width)}:-1:flags=bicubic,format=yuv420p`);
         } else if (!isNaN(options.height) && Number(options.height) >= 200 && Number(options.height) < options.metaData.height) {
-            funcArgs.push('-vf');
-            funcArgs.push(`scale=-1:${Number(options.height)}:flags=bicubic`);
+            funcArgs.push(`scale=-1:${Number(options.height)}:flags=bicubic,format=yuv420p`);
+        } else {
+            funcArgs.push('format=yuv420p');
         }
 
         // get audio streams from metaData
@@ -388,7 +405,9 @@ function encodeVideo(_, options) {
             ffmpegPath = path.join(ffmpegPath, "ffmpeg.exe");
         }
 
-        ffmpeg = spawn(ffmpegPath, funcArgs.concat(['-vf', 'format=yuv420p', '-c:a', 'libopus', '-b:a', '64k', '-movflags', '+faststart', '-y', '-progress', 'pipe:1', '-stats_period', '0.1', options.outputFilePath]), )
+        funcArgs = funcArgs.concat([ '-c:a', 'libopus', '-b:a', '64k', '-movflags', '+faststart', '-y', '-progress', 'pipe:1', '-stats_period', '0.1', options.outputFilePath]);
+
+        ffmpeg = spawn(ffmpegPath, funcArgs);
 
         //informEncode(progress);
 
