@@ -4,6 +4,8 @@ const path = require('path');
 const settingsHandler = require('./settings.js');
 const fs = require('fs');
 
+
+
 // this should be placed at top of main.js to handle setup events quickly
 if (handleSquirrelEvent()) {
     // squirrel event handled and app will exit in 1000ms, so don't do anything else
@@ -71,7 +73,13 @@ function handleSquirrelEvent() {
     }
 };
 
-let mainWindow, ffmpegLoc = "FFmpeg";
+let mainWindow;
+let ffmpegPaths = {
+    ffmpeg: "FFmpeg",
+    ffprobe: "FFprobe",
+    ffplay: "FFplay",
+    workPath: ""
+}
 let debug = require('inspector').url() !== undefined;
 
 const createWindow = () => {
@@ -118,7 +126,7 @@ app.whenReady().then(async () => {
     ipcMain.handle('encodeVideo', encodeVideo);
     ipcMain.handle('videoMetaData', (_, file, callback) => getvideoFileMeta(file, callback));
     ipcMain.handle('setFFmpegPath', setFFmpegPath)
-    ipcMain.handle('getFFmpegPath', () => ffmpegLoc);
+    ipcMain.handle('getFFmpegPath', () => ffmpegPaths.ffmpeg);
     ipcMain.handle('cancelEncode', cancelEncode);
     ipcMain.handle('getSettings', settingsHandler.loadSettings);
     ipcMain.handle('saveSettings', (_, data) => settingsHandler.saveSettings(data));
@@ -137,7 +145,12 @@ app.on('window-all-closed', () => {
 async function setFFmpegPath(_, ffmpegPath) {
     ffmpegPath = ffmpegPath.toLowerCase();
     if (ffmpegPath == "ffmpeg") {
-        ffmpegLoc = "FFmpeg";
+        ffmpegPaths = {
+            ffmpeg: "FFmpeg",
+            ffprobe: "FFprobe",
+            ffplay: "FFplay",
+            workPath: ""
+        }
         return true;
     }
     else {
@@ -147,7 +160,12 @@ async function setFFmpegPath(_, ffmpegPath) {
         }
 
         if (fs.existsSync(path.join(directoryPath, "ffmpeg.exe")) && fs.existsSync(path.join(directoryPath, "ffprobe.exe"))) {
-            ffmpegLoc = directoryPath;
+            ffmpegPaths = {
+                ffmpeg: path.join(directoryPath, "ffmpeg.exe"),
+                ffprobe: path.join(directoryPath, "ffprobe.exe"),
+                ffplay: path.join(directoryPath, "ffplay.exe"),
+                workPath: directoryPath
+            }
             return true;
         }
     }
@@ -179,6 +197,7 @@ async function getAvailableEncoders() {
 async function checkEncoders(encodersToCheck) {
     let validEncoders = new Set();
     for (const encoder in encodersToCheck) {
+
         let result = await checkCodec(encoder);
         if (result) {
             validEncoders.add(encoder);
@@ -190,10 +209,6 @@ async function checkEncoders(encodersToCheck) {
 
 function checkCodec(codec) {
     return new Promise((resolve, reject) => {
-        let ffmpegPath = ffmpegLoc;
-        if (ffmpegLoc == "FFmpeg") {
-            ffmpegPath = "ffmpeg";
-        }
 
         let args = ['-loglevel', 'error', '-f', 'lavfi', '-i', 'color=black:s=1080x1080', '-vframes', '1', '-an', '-c:v', codec];
 
@@ -205,10 +220,11 @@ function checkCodec(codec) {
 
         args = args.concat(['-f', 'null', '-']);
 
-        let ffmpeg = spawn(ffmpegPath, args);
+        let ffmpeg = spawn(ffmpegPaths.ffmpeg, args);
         let str = "";
 
         ffmpeg.on("error", function (error) {
+            //console.log(error);
             resolve(false);
         });
 
@@ -230,12 +246,8 @@ function checkCodec(codec) {
 
 function getSystemAvailableCodecs() {
     return new Promise((resolve, reject) => {
-        let ffmpegPath = ffmpegLoc;
-        if (ffmpegLoc == "FFmpeg") {
-            ffmpegPath = "ffmpeg";
-        }
 
-        let ffmpeg = spawn(ffmpegPath, ['-hide_banner', '-codecs', '-loglevel', '0']);
+        let ffmpeg = spawn(ffmpegPaths.ffmpeg, ['-hide_banner', '-codecs', '-loglevel', '0']);
         let str = "";
 
         ffmpeg.stdout.on('data', function (data) {
@@ -304,14 +316,7 @@ async function getvideoFileMeta(filePath) {
             input = filePath;
         }
 
-        let ffmpegPath = ffmpegLoc;
-        if (ffmpegLoc == "FFmpeg") {
-            ffmpegPath = "ffprobe";
-        } else {
-            ffmpegPath = path.join(ffmpegPath, "ffprobe.exe");
-        }
-
-        let ffprobe = spawn(ffmpegPath, ['-print_format', 'json', '-loglevel', '0', '-show_format', '-show_streams', input], );
+        let ffprobe = spawn(ffmpegPaths.ffprobe, ['-print_format', 'json', '-loglevel', '0', '-show_format', '-show_streams', input], );
 
         ffprobe.on("error", function (error) {
             resolve(JSON.stringify({ error: error }));
@@ -410,16 +415,9 @@ function encodeVideo(_, options) {
             funcArgs = funcArgs.concat(['-filter_complex', audioParams, '-map', '0:V:0', '-map', '[aout]']);
         }
 
-        let ffmpegPath = ffmpegLoc;
-        if (ffmpegLoc != "FFmpeg") {
-            ffmpegPath = path.join(ffmpegPath, "ffmpeg.exe");
-        }
-
         funcArgs = funcArgs.concat([ '-c:a', 'libopus', '-b:a', '64k', '-movflags', '+faststart', '-y', '-progress', 'pipe:1', '-stats_period', '0.1', options.outputFilePath]);
 
-        ffmpeg = spawn(ffmpegPath, funcArgs);
-
-        //informEncode(progress);
+        ffmpeg = spawn(ffmpegPaths.ffmpeg, funcArgs);
 
         ffmpeg.stdout.on('data', function (data) {
 
@@ -437,7 +435,6 @@ function encodeVideo(_, options) {
             }
 
             mainWindow.webContents.send('encode-progress-update', progress);
-            //informEncode(progress);
         });
 
         /* //example
